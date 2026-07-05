@@ -1,7 +1,7 @@
 # Build the static site, then serve it from nginx. Nothing runs at request time
 # except a static file server — the "backend" is Mock Service Worker in the browser.
 
-FROM node:24-alpine AS build
+FROM node:26-alpine AS build
 RUN corepack enable
 WORKDIR /app
 COPY . .
