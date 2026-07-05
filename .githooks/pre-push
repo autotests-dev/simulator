@@ -1,0 +1,11 @@
+#!/bin/sh
+# Reject a push when the tree isn't Prettier-clean. Install with:
+#   make install-git-hooks   (sets core.hooksPath to .githooks)
+# Skip a one-off push with:  git push --no-verify
+
+echo "pre-push: checking formatting..."
+if ! pnpm format:check; then
+  echo
+  echo "pre-push: formatting check failed. Run 'make fmt' and commit the result." >&2
+  exit 1
+fi

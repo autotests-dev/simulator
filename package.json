@@ -1,0 +1,38 @@
+{
+  "name": "simulator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Kote's — a realistic, deterministic, fully client-side web app used as a controlled target for web-automation and AI testing agents. Sponsored by autotests.dev.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=11"
+  },
+  "packageManager": "pnpm@11.9.0",
+  "scripts": {
+    "dev": "pnpm --filter @autotests-simulator/site dev",
+    "build": "pnpm run validate && pnpm --filter @autotests-simulator/site build",
+    "preview": "pnpm --filter @autotests-simulator/site preview",
+    "validate": "tsx packages/config/src/validate.cli.ts",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "playwright test",
+    "test:install": "playwright install --with-deps chromium",
+    "msw:init": "pnpm --filter @autotests-simulator/site exec msw init public --save"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^26.1.0",
+    "eslint": "^10.6.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.4",
+    "tsx": "^4.22.5",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.62.1"
+  }
+}

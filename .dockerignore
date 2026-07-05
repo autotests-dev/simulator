@@ -1,0 +1,12 @@
+.git
+node_modules
+**/node_modules
+apps/site/dist
+dist
+test-results
+playwright-report
+blob-report
+.playwright
+*.log
+.DS_Store
+.idea

@@ -1,0 +1,7 @@
+services:
+  simulator:
+    build: .
+    image: ghcr.io/autotests-dev/simulator:local
+    ports:
+      - '8080:80'
+    restart: unless-stopped

@@ -1,0 +1,7 @@
+node_modules
+dist
+LICENSE
+pnpm-lock.yaml
+playwright-report
+test-results
+apps/site/public/mockServiceWorker.js

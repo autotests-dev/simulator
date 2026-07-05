@@ -1,0 +1,5 @@
+{
+  "//": "Solution-style root config. Typechecking runs per-package via `pnpm -r typecheck`, where each package resolves its own dependencies. Editors pick up each package's own tsconfig.json.",
+  "extends": "./tsconfig.base.json",
+  "files": []
+}
