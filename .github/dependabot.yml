@@ -5,6 +5,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # TypeScript 7 does not expose the compiler API required by
+      # typescript-eslint. Revisit once the ecosystem supports the new API.
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
     groups:
       # Keep the bundler and its React plugin on the same PR — their majors are
       # coupled (a plugin major can require a newer Vite), so bumping them apart
