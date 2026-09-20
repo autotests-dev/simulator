@@ -59,6 +59,21 @@ jobs:
       - name: Tests (Playwright)
         run: pnpm test
 
+      - name: Benchmark runner regression tests
+        run: pnpm test:benchmark
+
+      - name: Benchmark runner smoke test
+        run: pnpm benchmark --suite benchmarks/example --accounts prof-demo,prof-ays --output artifacts/ci-matrix
+
+      - name: Upload benchmark evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: benchmark-evidence
+          path: artifacts
+          include-hidden-files: true
+          retention-days: 14
+
       - name: Build and smoke-test container
         run: bash scripts/check-container.sh
 

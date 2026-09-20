@@ -1,9 +1,19 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { fileURLToPath } from 'node:url';
+import { writeBuildManifest } from '../../scripts/benchmark/metadata';
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    {
+      name: 'benchmark-build-evidence',
+      apply: 'build',
+      closeBundle: () => writeBuildManifest(fileURLToPath(new URL('../../', import.meta.url))),
+    },
+  ],
   server: { port: 5173 },
   preview: { port: 4173 },
   build: {

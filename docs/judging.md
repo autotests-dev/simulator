@@ -9,7 +9,8 @@ no knowledge of where any pitfall lives is required, and none is given here.
 
 1. Have the agent generate its suite as a **guest** or signed in as the **baseline
    account** (`demo@kotes.test` — see [`whats-deployed.md`](./whats-deployed.md)), with
-   **credentials parametrized**.
+   **credentials parametrized**. The [matrix runner](benchmarking.md) supplies the
+   credentials and captures comparable local-build results.
 2. Run the suite once per relevant **condition account**, and — if it claims responsive
    coverage — once at a **mobile viewport**.
 3. Judge with three inputs: the suite's source, the per-account run results, and this

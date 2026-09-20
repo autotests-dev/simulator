@@ -44,6 +44,8 @@ pnpm validate     # validate simulator.config (accounts, catalog, behaviors)
 pnpm msw:init     # regenerate the committed MSW worker (only after upgrading msw)
 pnpm msw:check    # verify that the worker matches the installed MSW library
 pnpm audit:deps   # audit production and development dependencies
+pnpm check:bundle # check the entry JavaScript budget after building
+pnpm benchmark --suite benchmarks/example # compare a suite across accounts (build first)
 ```
 
 A [`Makefile`](Makefile) wraps these plus the container targets — run `make help` for the
@@ -99,6 +101,14 @@ docker run --rm -p 8080:80 ghcr.io/autotests-dev/simulator:latest
   suite, a human or AI judge applies [`docs/judging.md`](docs/judging.md) to the
   account-matrix results.
 
+## Compare a generated suite
+
+`pnpm build && pnpm benchmark --suite path/to/specs` runs the same parametrized
+Playwright suite against six account conditions, using an isolated snapshot of the
+build. It saves JSON/Markdown comparisons, logs, failure traces and build/suite
+fingerprints under `artifacts/`. See [the runner guide](docs/benchmarking.md) for
+credentials, browser selection, deadlines and the intentionally failing example row.
+
 ## Pitfalls exercised (family-level)
 
 Locator (repeated text, hidden responsive duplicates), visibility (disabled states,
@@ -136,6 +146,7 @@ together, see [`docs/architecture.md`](docs/architecture.md); to contribute, see
 - [`docs/architecture.md`](docs/architecture.md) — how the static app fakes a backend.
 - [`docs/best-practices.md`](docs/best-practices.md) — pitfall families and robust habits.
 - [`docs/whats-deployed.md`](docs/whats-deployed.md) — the known inputs (accounts, codes).
+- [`docs/benchmarking.md`](docs/benchmarking.md) — reproducible builds and account-matrix runner.
 - [`docs/judging.md`](docs/judging.md) — rubric for scoring a generated suite.
 - [`SECURITY.md`](SECURITY.md) · [`CONTRIBUTING.md`](CONTRIBUTING.md)
 

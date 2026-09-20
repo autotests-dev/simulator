@@ -31,6 +31,7 @@ export default tseslint.config(
       '**/*.tsbuildinfo',
       'playwright-report/**',
       'test-results/**',
+      'artifacts/**',
     ],
   },
   js.configs.recommended,
