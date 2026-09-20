@@ -88,6 +88,25 @@ All state is per-origin `localStorage` under a `kotes::` namespace (cart, sessio
 orders/addresses, consent). A fresh browser context is a clean, seeded baseline;
 loading any page with `?reset=1` clears the namespace and re-seeds.
 
+Domain records use a `{ version: 1, value: ... }` envelope and are validated on every
+read. Valid unversioned saves migrate on first use. Malformed JSON, invalid nested
+data, and unsupported versions re-seed only the affected record; unrelated records
+and other storage namespaces are preserved. Consent remains a plain preference.
+When changing a persisted shape incompatibly, bump its version in
+`packages/domain/src/persistence.ts` and decide whether to migrate or re-seed it.
+
+If storage reads or writes fail after startup, a page-local copy keeps domain
+operations usable. Unsaved changes cannot survive a reload or propagate to another
+tab. A reset still takes effect in the current page when removal is blocked, but
+cannot guarantee removal of inaccessible disk data. With healthy storage, reads
+continue to see persisted changes made by other tabs.
+
+The app renders a loading screen until MSW is ready. A rejected startup (including
+MSW's own storage initialization when browser storage is blocked) shows a retry
+screen. Retry reloads the same URL to recover failed module imports and worker
+registration without creating duplicate workers or React roots. Startup errors do
+not trigger a domain reset; the explicit `?reset=1` behavior still applies.
+
 ## Why there are no "coordinates" in the deployed app
 
 The shipped app contains **no** hint of where the pitfalls are — not in the DOM, the

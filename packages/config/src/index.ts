@@ -11,3 +11,4 @@ export type {
 } from './schema';
 
 export { config } from './simulator.config';
+export { ProductSchema, ProfileSchema } from './schema';
