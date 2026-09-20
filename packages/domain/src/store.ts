@@ -9,6 +9,7 @@ import {
   type Clock,
 } from '@autotests-simulator/sim-kit';
 import { computeTotals } from './totals';
+import { persistedState } from './persistence';
 import type {
   Address,
   AdminOrderPage,
@@ -193,45 +194,137 @@ function buildSeed(): {
 
 const SEED = buildSeed();
 
-const stockState = defineState<StockMap>(storage, 'stock', () => ({ ...SEED.stock }));
-const cartState = defineState<CartState>(storage, 'cart', () => ({ lines: [], couponCode: null }));
-const sessionState = defineState<SessionState>(storage, 'session', () => ({ userId: null }));
-const ordersState = defineState<OrdersState>(storage, 'orders', () =>
-  structuredCloneSafe(SEED.orders),
+const stockState = defineState<StockMap>(
+  storage,
+  'stock',
+  () => ({ ...SEED.stock }),
+  persistedState.stock,
 );
-const addressesState = defineState<AddressesState>(storage, 'addresses', () =>
-  structuredCloneSafe(SEED.addresses),
+const cartState = defineState<CartState>(
+  storage,
+  'cart',
+  () => ({ lines: [], couponCode: null }),
+  persistedState.cart,
 );
-const orderSeqState = defineState<number>(storage, 'orderSeq', () => SEED.orderSeq);
+const sessionState = defineState<SessionState>(
+  storage,
+  'session',
+  () => ({ userId: null }),
+  persistedState.session,
+);
+const ordersState = defineState<OrdersState>(
+  storage,
+  'orders',
+  () => structuredCloneSafe(SEED.orders),
+  persistedState.orders,
+);
+const addressesState = defineState<AddressesState>(
+  storage,
+  'addresses',
+  () => structuredCloneSafe(SEED.addresses),
+  persistedState.addresses,
+);
+const orderSeqState = defineState<number>(
+  storage,
+  'orderSeq',
+  () =>
+    highestSequence(
+      Object.values(ordersState.get())
+        .flat()
+        .map((order) => order.id),
+      /^ord-(\d+)$/,
+      SEED.orderSeq - 1,
+    ) + 1,
+  persistedState.sequence,
+);
 
 const overridesState = defineState<Record<string, ProductOverride>>(
   storage,
   'overrides',
   () => ({}),
+  persistedState.overrides,
 );
-const customProductsState = defineState<Product[]>(storage, 'customProducts', () => []);
-const writeSeqState = defineState<number>(storage, 'writeSeq', () => 0);
+const customProductsState = defineState<Product[]>(
+  storage,
+  'customProducts',
+  () => [],
+  persistedState.customProducts,
+);
+const writeSeqState = defineState<number>(storage, 'writeSeq', () => 0, persistedState.sequence);
 
-const notesState = defineState<Record<string, Note[]>>(storage, 'notes', () => ({
-  'p-aera-mug': [
-    {
-      id: 'note-p-aera-mug-1',
-      body: "Top seller this month. A customer wrote: Love it! <b>5/5</b> <script>alert('hi')</script>",
-      createdAt: config.defaults.now,
-    },
-  ],
-}));
-const reauthState = defineState<{ reauthed: boolean }>(storage, 'reauth', () => ({
-  reauthed: false,
-}));
-const sessionSeqState = defineState<number>(storage, 'sessionSeq', () => 0);
-const contactSeqState = defineState<number>(storage, 'contactSeq', () => 1000);
-const customAccountsState = defineState<Profile[]>(storage, 'customAccounts', () => []);
-const addressSeqState = defineState<number>(storage, 'addressSeq', () => 0);
-const userReviewsState = defineState<Record<string, Review[]>>(storage, 'userReviews', () => ({}));
+const notesState = defineState<Record<string, Note[]>>(
+  storage,
+  'notes',
+  () => ({
+    'p-aera-mug': [
+      {
+        id: 'note-p-aera-mug-1',
+        body: "Top seller this month. A customer wrote: Love it! <b>5/5</b> <script>alert('hi')</script>",
+        createdAt: config.defaults.now,
+      },
+    ],
+  }),
+  persistedState.notes,
+);
+const reauthState = defineState<{ reauthed: boolean }>(
+  storage,
+  'reauth',
+  () => ({
+    reauthed: false,
+  }),
+  persistedState.reauth,
+);
+const sessionSeqState = defineState<number>(
+  storage,
+  'sessionSeq',
+  () => 0,
+  persistedState.sequence,
+);
+const contactSeqState = defineState<number>(
+  storage,
+  'contactSeq',
+  () => 1000,
+  persistedState.sequence,
+);
+const customAccountsState = defineState<Profile[]>(
+  storage,
+  'customAccounts',
+  () => [],
+  persistedState.customAccounts,
+);
+const addressSeqState = defineState<number>(
+  storage,
+  'addressSeq',
+  () =>
+    highestSequence(
+      Object.values(addressesState.get())
+        .flat()
+        .map((address) => address.id),
+      /-u(\d+)$/,
+      0,
+    ),
+  persistedState.sequence,
+);
+const userReviewsState = defineState<Record<string, Review[]>>(
+  storage,
+  'userReviews',
+  () => ({}),
+  persistedState.userReviews,
+);
 
 const CONTACT_TOPICS = ['order', 'returns', 'care', 'other'];
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+function highestSequence(ids: string[], pattern: RegExp, minimum: number): number {
+  let highest = minimum;
+  for (const id of ids) {
+    const match = pattern.exec(id);
+    if (!match) continue;
+    const sequence = Number(match[1]);
+    if (Number.isSafeInteger(sequence)) highest = Math.max(highest, sequence);
+  }
+  return highest;
+}
 
 function structuredCloneSafe<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;

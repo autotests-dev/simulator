@@ -1,6 +1,6 @@
 {
   "name": "simulator",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Kote's — a realistic, deterministic, fully client-side web app used as a controlled target for web-automation and AI testing agents. Sponsored by autotests.dev.",
   "license": "Apache-2.0",

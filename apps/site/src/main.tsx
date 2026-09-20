@@ -8,6 +8,12 @@ import { App } from './app/App';
 import { SessionProvider } from './app/SessionContext';
 import { CartProvider } from './app/CartContext';
 import { ToastProvider } from './app/ToastContext';
+import { StartupScreen } from './app/StartupScreen';
+
+const el = document.getElementById('root');
+if (!el) throw new Error('Missing #root element');
+const root = createRoot(el);
+root.render(<StartupScreen />);
 
 async function bootstrap() {
   const params = new URLSearchParams(window.location.search);
@@ -20,10 +26,7 @@ async function bootstrap() {
     serviceWorker: { url: '/mockServiceWorker.js' },
   });
 
-  const el = document.getElementById('root');
-  if (!el) throw new Error('Missing #root element');
-
-  createRoot(el).render(
+  root.render(
     <StrictMode>
       <BrowserRouter>
         <SessionProvider>
@@ -38,4 +41,7 @@ async function bootstrap() {
   );
 }
 
-void bootstrap();
+void bootstrap().catch((error: unknown) => {
+  console.error('Kote’s startup failed', error);
+  root.render(<StartupScreen failed />);
+});
