@@ -2,6 +2,9 @@ packages:
   - 'packages/*'
   - 'apps/*'
 
+strictPeerDependencies: true
+autoInstallPeers: true
+
 # Dependencies allowed to run install/build scripts (pnpm blocks these by default).
 # esbuild powers tsx + Vite; msw scaffolds its worker tooling; oxide is Tailwind v4's
 # native engine.
@@ -9,6 +12,3 @@ allowBuilds:
   esbuild: true
   msw: true
   '@tailwindcss/oxide': true
-
-minimumReleaseAgeExclude:
-  - tsx@4.22.5

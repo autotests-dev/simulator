@@ -2,7 +2,7 @@ IMAGE ?= ghcr.io/autotests-dev/simulator
 TAG   ?= local
 
 .DEFAULT_GOAL := help
-.PHONY: help install dev build preview fmt fmt-check lint typecheck validate test check \
+.PHONY: help install dev build preview fmt fmt-check lint typecheck validate test check audit msw-check check-container \
         up down logs image push install-git-hooks clean
 
 help: ## Show this help
@@ -39,7 +39,16 @@ validate: ## Validate simulator.config against its schema
 test: ## Run the Playwright suite
 	pnpm test
 
-check: fmt-check validate lint typecheck build test ## Run every gate (what CI runs)
+audit: ## Audit production and development dependencies
+	pnpm run audit:deps
+
+msw-check: ## Check that the committed worker matches the installed MSW library
+	pnpm run msw:check
+
+check-container: ## Build and smoke-test the production container
+	bash scripts/check-container.sh
+
+check: fmt-check msw-check audit validate lint typecheck build test check-container ## Run every CI gate
 
 up: ## Build and serve the container (http://localhost:8080)
 	docker compose up -d --build
