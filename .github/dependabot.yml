@@ -11,6 +11,9 @@ updates:
       - dependency-name: typescript
         update-types: [version-update:semver-major]
     groups:
+      security:
+        applies-to: security-updates
+        patterns: ['*']
       # Keep the bundler and its React plugin on the same PR — their majors are
       # coupled (a plugin major can require a newer Vite), so bumping them apart
       # produces incompatible PRs.
@@ -37,3 +40,7 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Advance the container and CI together when adopting the next Node LTS.
+      - dependency-name: node
+        update-types: [version-update:semver-major]

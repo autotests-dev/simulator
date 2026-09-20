@@ -42,10 +42,15 @@ pnpm typecheck    # type-check every workspace package
 pnpm lint         # ESLint (incl. determinism rules for product code)
 pnpm validate     # validate simulator.config (accounts, catalog, behaviors)
 pnpm msw:init     # regenerate the committed MSW worker (only after upgrading msw)
+pnpm msw:check    # verify that the worker matches the installed MSW library
+pnpm audit:deps   # audit production and development dependencies
 ```
 
 A [`Makefile`](Makefile) wraps these plus the container targets — run `make help` for the
 full list. Enable the pre-push formatting check once with `make install-git-hooks`.
+Development, CI, and container builds use Node.js 24 LTS and the pnpm version pinned
+in `package.json`. `make check` runs all CI gates, including a Docker build and HTTP
+smoke test; use `SIMULATOR_CONTAINER_RUNTIME=podman make check-container` for Podman.
 
 ## Run with Docker
 

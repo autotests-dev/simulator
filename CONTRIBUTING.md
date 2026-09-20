@@ -8,9 +8,9 @@ The golden rule that keeps the project coherent:
 
 ## Prerequisites
 
-- Node.js ≥ 24 and pnpm ≥ 11.
+- Node.js 24 LTS (see `.node-version`) and the pnpm version pinned in `package.json`.
 - `pnpm install` once at the repo root. (The MSW worker is committed; run `pnpm msw:init`
-  only after upgrading `msw`.)
+  after upgrading `msw`, and commit the regenerated worker. `pnpm msw:check` verifies it.)
 
 ## The config-vs-code boundary
 
@@ -66,9 +66,12 @@ Every change must pass the full gate:
 
 ```bash
 pnpm validate     # simulator.config is valid (unique ids/slugs, behaviors, references)
+pnpm msw:check    # the committed worker matches the installed MSW library
+pnpm audit:deps   # production and development dependency audit
 pnpm lint         # incl. determinism rules for product code
 pnpm typecheck
 pnpm test         # Playwright
+make check-container # build the image and check the app, deep links, and MSW worker
 ```
 
 ## Commit & PR
