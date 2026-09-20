@@ -1,3 +1,4 @@
+// Frozen v0.1.2 reader for upgrade/rollback regression tests.
 export type KvStorage = {
   readonly namespace: string;
   get<T>(subkey: string): T | undefined;
@@ -90,24 +91,17 @@ export function defineState<T>(
   initial: () => T,
   { version, schema }: StateOptions<T>,
 ): StateHandle<T> {
-  // Preserve the original value shape for older tabs and rollback builds. Keep
-  // schema metadata beside the value instead of changing what old readers see.
-  const versionKey = `$version:${name}`;
-  const write = (value: T): void => {
-    storage.set(name, value);
-    storage.set(versionKey, version);
-  };
+  const write = (value: T): void => storage.set(name, { version, value });
   const read = (): T => {
     const stored = storage.get<unknown>(name);
     const wrapped = typeof stored === 'object' && stored !== null && 'version' in stored;
-    const storedVersion = wrapped ? stored.version : storage.get<unknown>(versionKey);
-    const compatible = storedVersion === undefined || storedVersion === version;
+    const compatible = !wrapped || stored.version === version;
     const value = wrapped ? ('value' in stored ? stored.value : undefined) : stored;
     if (compatible) {
       const parsed = schema.safeParse(value);
       if (parsed.success) {
-        // Accept v0.1.2 envelopes, then repair them for legacy readers.
-        if (wrapped || storedVersion === undefined) write(parsed.data);
+        // Existing unversioned records are migrated only after validation.
+        if (!wrapped) write(parsed.data);
         return parsed.data;
       }
     }

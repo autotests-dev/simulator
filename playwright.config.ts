@@ -16,6 +16,11 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: /mobile\.spec\.ts/ },
     { name: 'mobile', use: { ...devices['Pixel 7'] }, testMatch: /mobile\.spec\.ts/ },
+    ...(['firefox', 'webkit'] as const).map((browserName) => ({
+      name: browserName,
+      use: { browserName },
+      testMatch: /(?:crossbrowser|resilience|upgrade)\.spec\.ts/,
+    })),
   ],
   webServer: {
     command: 'pnpm run build && pnpm run preview',

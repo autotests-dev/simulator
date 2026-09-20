@@ -20,10 +20,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "playwright test",
-    "test:install": "playwright install --with-deps chromium",
+    "test:install": "playwright install --with-deps chromium firefox webkit",
     "msw:init": "pnpm --filter @autotests-simulator/site exec msw init public --save",
     "msw:check": "node scripts/check-msw-worker.mjs",
-    "audit:deps": "pnpm audit"
+    "audit:deps": "pnpm audit",
+    "check:bundle": "node scripts/check-bundle.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

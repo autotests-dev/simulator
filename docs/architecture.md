@@ -88,8 +88,11 @@ All state is per-origin `localStorage` under a `kotes::` namespace (cart, sessio
 orders/addresses, consent). A fresh browser context is a clean, seeded baseline;
 loading any page with `?reset=1` clears the namespace and re-seeds.
 
-Domain records use a `{ version: 1, value: ... }` envelope and are validated on every
-read. Valid unversioned saves migrate on first use. Malformed JSON, invalid nested
+Domain records retain their original JSON shape; schema versions live beside them
+in `kotes::$version:<record>` keys. Every read validates the value. Startup unwraps
+valid v0.1.2 `{ version: 1, value: ... }` envelopes, including records on unvisited
+pages, so v0.1.1 readers and rollback builds can still read the saved state.
+Valid unversioned saves acquire version metadata without changing their shape. Malformed JSON, invalid nested
 data, and unsupported versions re-seed only the affected record; unrelated records
 and other storage namespaces are preserved. Consent remains a plain preference.
 Recovered order/address counters continue beyond IDs in the retained records.
@@ -102,11 +105,37 @@ tab. A reset still takes effect in the current page when removal is blocked, but
 cannot guarantee removal of inaccessible disk data. With healthy storage, reads
 continue to see persisted changes made by other tabs.
 
-The app renders a loading screen until MSW is ready. A rejected startup (including
+A new tab can exchange compatible records with either prior release. A v0.1.2 tab
+still writes envelopes, so reload those tabs before also using a v0.1.1 tab; a new
+build cannot repair communication between two already-running old builds.
+Incompatible future shape changes still require an explicit migration/rollback plan.
+
+The app renders a loading screen until MSW is ready. Startup times out after 15
+seconds; late completion cannot replace the recovery screen. A rejected startup (including
 MSW's own storage initialization when browser storage is blocked) shows a retry
 screen. Retry reloads the same URL to recover failed module imports and worker
 registration without creating duplicate workers or React roots. Startup errors do
 not trigger a domain reset; the explicit `?reset=1` behavior still applies.
+
+## Page loading and browser checks
+
+Route components load on demand with an accessible loading state and reload-based
+recovery if a chunk download fails. Dynamic JavaScript preloads are disabled to
+avoid [WebKit bug 270357](https://bugs.webkit.org/show_bug.cgi?id=270357), which
+caches failed preloads across reloads. HTML entry preloads remain enabled; dynamic
+imports may incur an extra dependency round trip. `pnpm check:bundle` caps the entry plus all
+static JavaScript imports at 135 KiB gzip. This is a parsing budget, not total
+startup transfer: the domain and MSW also load before the app becomes interactive.
+The command separately reports the combined size of all JavaScript chunks.
+
+Chromium runs the full regression suite plus a mobile viewport. Firefox and WebKit
+run login, checkout, lazy-page, storage, and startup smoke checks. Upgrade tests use
+frozen v0.1.1/v0.1.2 storage readers in a second tab in Chromium and WebKit. Firefox
+skips those two tests because of [Playwright #37012](https://github.com/microsoft/playwright/issues/37012):
+the patched browser loses service-worker control after a navigation bypasses the
+worker. Chunk-failure injection after worker activation is Chromium-only because
+Playwright cannot reliably route worker-owned requests in the other engines.
+These are explicit coverage gaps, not claims of complete browser parity.
 
 ## Why there are no "coordinates" in the deployed app
 
