@@ -1,4 +1,4 @@
-import { ProductSchema, ProfileSchema } from '@autotests-simulator/config';
+import { ProductSchema, ProfileSchema } from '@autotests-simulator/config/schema';
 import { z } from 'zod';
 import type { Address, Note, Order, ProductOverride, Review, Totals } from './types';
 

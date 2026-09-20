@@ -45,10 +45,13 @@ audit: ## Audit production and development dependencies
 msw-check: ## Check that the committed worker matches the installed MSW library
 	pnpm run msw:check
 
+bundle-check: ## Check the initial JavaScript size after building
+	pnpm run check:bundle
+
 check-container: ## Build and smoke-test the production container
 	bash scripts/check-container.sh
 
-check: fmt-check msw-check audit validate lint typecheck build test check-container ## Run every CI gate
+check: fmt-check msw-check audit validate lint typecheck build bundle-check test check-container ## Run every CI gate
 
 up: ## Build and serve the container (http://localhost:8080)
 	docker compose up -d --build

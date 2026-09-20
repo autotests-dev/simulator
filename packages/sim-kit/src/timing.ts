@@ -1,5 +1,20 @@
 import type { Rng } from './rng';
 
+/** Bound infrastructure startup without changing account-specific latency. */
+export async function withTimeout<T>(operation: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => reject(new Error('Startup timed out')), ms);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export type Timing = {
   readonly slowFactor: number;
   delay(ms: number): Promise<void>;

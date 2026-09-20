@@ -315,6 +315,32 @@ const userReviewsState = defineState<Record<string, Review[]>>(
 const CONTACT_TOPICS = ['order', 'returns', 'care', 'other'];
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
+export function prepareDomainStorage(): void {
+  // Repair all existing records before serving requests, including surfaces that
+  // this tab has not visited. This also makes a subsequent rollback readable.
+  const handles = {
+    stock: stockState,
+    cart: cartState,
+    session: sessionState,
+    orders: ordersState,
+    addresses: addressesState,
+    orderSeq: orderSeqState,
+    overrides: overridesState,
+    customProducts: customProductsState,
+    writeSeq: writeSeqState,
+    notes: notesState,
+    reauth: reauthState,
+    sessionSeq: sessionSeqState,
+    contactSeq: contactSeqState,
+    customAccounts: customAccountsState,
+    addressSeq: addressSeqState,
+    userReviews: userReviewsState,
+  };
+  for (const [name, handle] of Object.entries(handles)) {
+    if (storage.get(name) !== undefined) handle.get();
+  }
+}
+
 function highestSequence(ids: string[], pattern: RegExp, minimum: number): number {
   let highest = minimum;
   for (const id of ids) {

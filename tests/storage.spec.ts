@@ -83,7 +83,8 @@ test('state migration preserves legacy values and rejects malformed or incompati
   const state = defineState(storage, 'sequence', () => 10, persistedState.sequence);
   records.set('test::sequence', '27');
   expect(state.get()).toBe(27);
-  expect(JSON.parse(records.get('test::sequence')!)).toEqual({ version: 1, value: 27 });
+  expect(JSON.parse(records.get('test::sequence')!)).toBe(27);
+  expect(records.get('test::$version:sequence')).toBe('1');
   expect(state.update((value) => value + 1)).toBe(28);
 
   for (const raw of ['{', 'null', '"27"', '-1', '{"version":2,"value":27}', '{"version":1}']) {
@@ -144,3 +145,20 @@ test('recovering corrupt counters does not reuse saved order or address IDs', ()
   expect(domain.getOrder(firstOrder.number)).toEqual(firstOrder);
   expect(domain.getOrder(nextOrder.number)).toEqual(nextOrder);
 });
+
+for (const [name, value, options] of [
+  ['sequence', 27, persistedState.sequence],
+  ['customProducts', [], persistedState.customProducts],
+  ['session', { userId: 'prof-demo' }, persistedState.session],
+] as const) {
+  test(`v0.1.2 ${name} envelopes unwrap and incompatible sidecar versions reseed`, () => {
+    const storage = createStorage('test');
+    const state = defineState<unknown>(storage, name, () => null, options);
+    records.set(`test::${name}`, JSON.stringify({ version: 1, value }));
+    expect(state.get()).toEqual(value);
+    expect(JSON.parse(records.get(`test::${name}`)!)).toEqual(value);
+    expect(records.get(`test::$version:${name}`)).toBe('1');
+    records.set(`test::$version:${name}`, '999');
+    expect(state.get()).toBeNull();
+  });
+}

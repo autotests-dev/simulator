@@ -6,6 +6,9 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     ignore:
+      # Keep Node API types aligned with the Node 24 runtime used in CI and Docker.
+      - dependency-name: '@types/node'
+        update-types: [version-update:semver-major]
       # TypeScript 7 does not expose the compiler API required by
       # typescript-eslint. Revisit once the ecosystem supports the new API.
       - dependency-name: typescript
