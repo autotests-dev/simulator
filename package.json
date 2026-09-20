@@ -1,6 +1,6 @@
 {
   "name": "simulator",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "Kote's — a realistic, deterministic, fully client-side web app used as a controlled target for web-automation and AI testing agents. Sponsored by autotests.dev.",
   "license": "Apache-2.0",
@@ -15,7 +15,7 @@
     "build": "pnpm run validate && pnpm --filter @autotests-simulator/site build",
     "preview": "pnpm --filter @autotests-simulator/site preview",
     "validate": "tsx packages/config/src/validate.cli.ts",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm -r typecheck && tsc -p scripts/benchmark/tsconfig.json",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -24,7 +24,9 @@
     "msw:init": "pnpm --filter @autotests-simulator/site exec msw init public --save",
     "msw:check": "node scripts/check-msw-worker.mjs",
     "audit:deps": "pnpm audit",
-    "check:bundle": "node scripts/check-bundle.mjs"
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "benchmark": "tsx scripts/benchmark/run.ts",
+    "test:benchmark": "node --import tsx --test scripts/benchmark/runner.test.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

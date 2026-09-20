@@ -71,6 +71,7 @@ pnpm audit:deps   # production and development dependency audit
 pnpm lint         # incl. determinism rules for product code
 pnpm typecheck
 pnpm test         # Playwright
+pnpm test:benchmark # runner integrity, failure, skip, and timeout checks (build first)
 make check-container # build the image and check the app, deep links, and MSW worker
 ```
 

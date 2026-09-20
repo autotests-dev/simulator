@@ -51,7 +51,10 @@ bundle-check: ## Check the initial JavaScript size after building
 check-container: ## Build and smoke-test the production container
 	bash scripts/check-container.sh
 
-check: fmt-check msw-check audit validate lint typecheck build bundle-check test check-container ## Run every CI gate
+test-benchmark: ## Check the matrix runner after building and installing Chromium
+	pnpm test:benchmark
+
+check: fmt-check msw-check audit validate lint typecheck build bundle-check test test-benchmark check-container ## Run every CI gate
 
 up: ## Build and serve the container (http://localhost:8080)
 	docker compose up -d --build
