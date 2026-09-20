@@ -2,7 +2,7 @@ IMAGE ?= ghcr.io/autotests-dev/simulator
 TAG   ?= local
 
 .DEFAULT_GOAL := help
-.PHONY: help install dev build preview fmt fmt-check lint typecheck validate test check audit msw-check check-container \
+.PHONY: help install dev build preview fmt fmt-check lint typecheck validate test test-benchmark check audit msw-check bundle-check check-container \
         up down logs image push install-git-hooks clean
 
 help: ## Show this help
