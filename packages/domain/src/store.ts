@@ -227,7 +227,14 @@ const addressesState = defineState<AddressesState>(
 const orderSeqState = defineState<number>(
   storage,
   'orderSeq',
-  () => SEED.orderSeq,
+  () =>
+    highestSequence(
+      Object.values(ordersState.get())
+        .flat()
+        .map((order) => order.id),
+      /^ord-(\d+)$/,
+      SEED.orderSeq - 1,
+    ) + 1,
   persistedState.sequence,
 );
 
@@ -288,7 +295,14 @@ const customAccountsState = defineState<Profile[]>(
 const addressSeqState = defineState<number>(
   storage,
   'addressSeq',
-  () => 0,
+  () =>
+    highestSequence(
+      Object.values(addressesState.get())
+        .flat()
+        .map((address) => address.id),
+      /-u(\d+)$/,
+      0,
+    ),
   persistedState.sequence,
 );
 const userReviewsState = defineState<Record<string, Review[]>>(
@@ -300,6 +314,17 @@ const userReviewsState = defineState<Record<string, Review[]>>(
 
 const CONTACT_TOPICS = ['order', 'returns', 'care', 'other'];
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+function highestSequence(ids: string[], pattern: RegExp, minimum: number): number {
+  let highest = minimum;
+  for (const id of ids) {
+    const match = pattern.exec(id);
+    if (!match) continue;
+    const sequence = Number(match[1]);
+    if (Number.isSafeInteger(sequence)) highest = Math.max(highest, sequence);
+  }
+  return highest;
+}
 
 function structuredCloneSafe<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;

@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { createStorage, defineState } from '../packages/sim-kit/src/storage';
 import { persistedState } from '../packages/domain/src/persistence';
+import { domain } from '../packages/domain/src/store';
 
 let savedDescriptor: PropertyDescriptor | undefined;
 let records: Map<string, string>;
@@ -115,4 +116,31 @@ test('nested invalid records are rejected for every persisted domain collection'
     );
     expect(schema.schema.safeParse(null).success, name).toBe(false);
   }
+});
+
+test('recovering corrupt counters does not reuse saved order or address IDs', () => {
+  domain.reset();
+  domain.login('demo@kotes.test', 'demo1234');
+  const address = {
+    name: 'Sam Demo',
+    line1: '123 Test Street',
+    city: 'Portland',
+    region: 'OR',
+    postalCode: '97201',
+    country: 'US',
+  };
+  const firstAddress = domain.addAddress(address).at(-1)!;
+  records.set('kotes::addressSeq', 'null');
+  const addresses = domain.addAddress({ ...address, line1: '456 Test Street' });
+  expect(addresses.at(-1)!.id).not.toBe(firstAddress.id);
+  expect(new Set(addresses.map((entry) => entry.id)).size).toBe(addresses.length);
+
+  domain.addToCart({ productId: 'p-nest-basket' });
+  const firstOrder = domain.checkout({ email: 'demo@kotes.test', address });
+  records.set('kotes::orderSeq', '"broken"');
+  domain.addToCart({ productId: 'p-nest-basket' });
+  const nextOrder = domain.checkout({ email: 'demo@kotes.test', address });
+  expect(nextOrder.id).not.toBe(firstOrder.id);
+  expect(domain.getOrder(firstOrder.number)).toEqual(firstOrder);
+  expect(domain.getOrder(nextOrder.number)).toEqual(nextOrder);
 });

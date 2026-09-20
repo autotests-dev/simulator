@@ -92,6 +92,7 @@ Domain records use a `{ version: 1, value: ... }` envelope and are validated on 
 read. Valid unversioned saves migrate on first use. Malformed JSON, invalid nested
 data, and unsupported versions re-seed only the affected record; unrelated records
 and other storage namespaces are preserved. Consent remains a plain preference.
+Recovered order/address counters continue beyond IDs in the retained records.
 When changing a persisted shape incompatibly, bump its version in
 `packages/domain/src/persistence.ts` and decide whether to migrate or re-seed it.
 
