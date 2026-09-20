@@ -71,6 +71,7 @@ jobs:
         with:
           name: benchmark-evidence
           path: artifacts
+          include-hidden-files: true
           retention-days: 14
 
       - name: Build and smoke-test container
